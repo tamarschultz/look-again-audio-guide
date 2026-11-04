@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Look Again Audio Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&display=swap">
+<style>
+/* Layout: one vertical feed in walking order, like synced lyrics. Dark so it stays quiet in a gallery; the red dot is always the guide. */
+:root {
+  --paper: #ffffff; --ink: #111111; --ink-2: #1c1c1c; --line: #333333;
+  --text: #ffffff; --soft: #a6a6a6; --dim: #6e6e6e; --muted-paper: #595959;
+  --red: #ff2c2c;
+  --sans: "Assistant", "Arial Hebrew", Arial, sans-serif;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--ink); color: var(--text); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow: hidden; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--ink); }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.gutter { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.app { position: relative; height: 100%; max-width: 480px; margin: 0 auto; overflow: hidden; }
+.textlink { font-size: 14px; text-decoration: underline; text-underline-offset: 3px; min-height: 44px; }
+
+/* Start */
+#start { position: absolute; inset: 0; z-index: 20; background: var(--paper); color: var(--ink); display: flex; flex-direction: column; padding-block: 28px 24px; overflow-y: auto; color-scheme: light; }
+.brand { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.brand span { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-paper); }
+.brand img { height: 30px; width: auto; display: block; }
+#start .hero { margin-top: 22px; border-radius: 6px; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block; background: #eeeeec; }
+#start h1 { margin: 22px 0 4px; font-size: 38px; line-height: 1; font-weight: 800; letter-spacing: -.01em; text-wrap: balance; }
+#start .sub { margin: 0; font-size: 16px; line-height: 1.45; color: #333; max-width: 36ch; }
+.grow { flex: 1; min-height: 20px; }
+.status { font-size: 14px; color: var(--muted-paper); min-height: 22px; margin-bottom: 10px; }
+.bar { height: 4px; background: #e6e6e4; border-radius: 2px; overflow: hidden; margin-bottom: 14px; }
+.bar i { display: block; height: 100%; width: 0; background: var(--ink); transition: width .2s; }
+#begin { width: 100%; height: 58px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 12px; }
+#begin:disabled { background: #d9d9d6; color: #6b6b6b; cursor: default; }
+#begin i { width: 14px; height: 14px; border-radius: 50%; background: var(--red); }
+#begin:disabled i { background: #9a9a97; }
+.fine { font-size: 12px; line-height: 1.45; color: var(--muted-paper); margin: 12px 0 0; }
+#start .textlink { align-self: flex-start; color: var(--muted-paper); margin-top: 2px; }
+
+/* Feed */
+#feed { position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 45vh; }
+.room-head { position: sticky; top: 0; z-index: 5; width: 100%; background: var(--ink); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 14px; border-bottom: 1px solid var(--line); text-align: start; }
+.room-head b { font-size: 17px; font-weight: 700; }
+.room-head span { font-size: 13px; color: var(--soft); font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 6px; flex: none; }
+.room-head svg { width: 14px; height: 14px; }
+.card { display: block; padding-block: 26px; opacity: .55; transition: opacity .4s var(--ease); cursor: pointer; }
+.card.now { opacity: 1; cursor: default; }
+.card.done { opacity: .45; }
+.card img { width: 100%; max-height: 42vh; object-fit: cover; border-radius: 6px; display: block; background: var(--ink-2); }
+.card img.tall { object-fit: contain; }
+.meta { margin-top: 12px; display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.meta h2 { margin: 0; font-size: 21px; line-height: 1.15; font-weight: 700; text-wrap: balance; }
+.meta .year { font-size: 14px; color: var(--soft); flex: none; }
+.also { font-size: 13px; color: var(--soft); margin: 3px 0 0; }
+.script { margin: 14px 0 0; font-size: 21px; line-height: 1.38; font-weight: 400; color: var(--dim); }
+.script span { transition: color .25s; }
+.script span.past { color: var(--soft); }
+.script span.cur { color: var(--text); font-weight: 500; }
+.lookdot { display: none; width: 10px; height: 10px; border-radius: 50%; background: var(--red); margin-inline-start: 8px; vertical-align: middle; animation: breathe 1.6s ease-in-out infinite; }
+.card.looking .lookdot { display: inline-block; }
+@keyframes breathe { 50% { opacity: .25; } }
+.skip { display: none; margin-top: 16px; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1.5px solid #5a5a5a; font-size: 15px; font-weight: 500; }
+.card.now .skip { display: inline-block; }
+.endcard { padding-block: 34px; display: none; }
+.endcard.on { display: block; }
+.endcard h2 { margin: 0 0 8px; font-size: 30px; font-weight: 800; line-height: 1.05; }
+.endcard p { margin: 0 0 16px; font-size: 16px; line-height: 1.45; color: var(--soft); max-width: 36ch; }
+.endcard button.again { min-height: 48px; padding: 0 20px; border-radius: 999px; background: #fff; color: var(--ink); font-weight: 700; margin-inline-end: 14px; }
+
+/* Controls */
+.dock { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; display: flex; align-items: center; justify-content: center; padding-top: 34px; padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to bottom, rgba(17,17,17,0), var(--ink) 42%); pointer-events: none; }
+#pp { pointer-events: auto; width: 68px; height: 68px; border-radius: 50%; background: var(--red); display: grid; place-items: center; position: relative; }
+#pp svg { width: 24px; height: 24px; }
+#pp.on::after { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 2px solid rgba(255,44,44,.42); animation: ring 1.8s ease-out infinite; }
+@keyframes ring { from { transform: scale(.88); opacity: 1; } to { transform: scale(1.3); opacity: 0; } }
+#now { position: absolute; z-index: 7; left: 50%; bottom: calc(102px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); min-height: 44px; padding: 0 18px; border-radius: 999px; background: #fff; color: var(--ink); font-size: 15px; font-weight: 700; white-space: nowrap; box-shadow: 0 4px 18px rgba(0,0,0,.4); }
+
+/* Sheets */
+.sheet { position: absolute; inset: 0; z-index: 30; background: var(--ink); overflow-y: auto; padding-block: 16px 40px; }
+.sheet header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+.sheet header b { font-size: 20px; font-weight: 800; }
+.sheet header button { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1.5px solid #5a5a5a; font-size: 14px; font-weight: 500; }
+.idx { list-style: none; margin: 0; padding: 0; }
+.idx li.rm { padding: 12px 0; font-size: 16px; color: var(--dim); border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; }
+.idx li.rm small { font-size: 12px; }
+.idx li.cur-room { color: var(--text); font-weight: 700; }
+.idx li.st button { width: 100%; text-align: start; min-height: 44px; padding: 8px 0 8px 14px; font-size: 16px; color: var(--soft); }
+.idx li.st.now button { color: var(--text); font-weight: 600; }
+#notes h3 { margin: 26px 0 8px; font-size: 18px; font-weight: 700; }
+#notes p, #notes li { font-size: 15px; line-height: 1.5; color: #d8d8d8; }
+#notes ul, #notes ol { padding-inline-start: 20px; margin: 0; }
+#notes li { margin-bottom: 6px; }
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; color: #d8d8d8; }
+th, td { text-align: start; vertical-align: top; padding: 8px 8px 8px 0; border-bottom: 1px solid var(--line); }
+th { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--soft); }
+@media (prefers-reduced-motion: reduce) { *, *::after { animation: none !important; transition-duration: .01s !important; } }
+</style>
+
+<div class="app" id="app">
+  <div id="feed" aria-label="Tour transcript">
+    <button class="room-head gutter" id="room-head" aria-label="Open the list of rooms"><b id="room-name"></b><span><em id="pos" style="font-style:normal"></em><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span></button>
+    <div id="cards" class="gutter"></div>
+    <div class="endcard gutter" id="endcard">
+      <h2>That's the room.</h2>
+      <p>In the full tour, the guide would carry on through the green doorway to the rabbit.</p>
+      <button class="again" id="again">Hear it again</button>
+      <button class="textlink" data-open="notes">Testing notes</button>
+    </div>
+  </div>
+  <button id="now" hidden>Back to now</button>
+  <div class="dock"><button id="pp" aria-label="Pause"></button></div>
+
+  <section class="sheet gutter" id="index" hidden aria-label="Rooms">
+    <header><b>Rooms</b><button data-close="index">Close</button></header>
+    <ul class="idx" id="idx"></ul>
+  </section>
+
+  <section class="sheet gutter" id="notes" hidden aria-label="Testing notes">
+    <header><b>Testing notes</b><button data-close="notes">Close</button></header>
+    <div id="notes-body"></div>
+  </section>
+
+  <section id="start" class="gutter">
+    <div class="brand"><span>Concept demo for</span><img src="img/museum-logo.png" alt="Tel Aviv Museum of Art"></div>
+    <img class="hero" id="hero" alt="A pink wall and a white wall meeting in a corner, with a tall black sculpture, a question mark and a red dress">
+    <h1>Noma Bar: Look Again</h1>
+    <p class="sub">Put your headphones on and your phone away. The guide walks you through the White &amp; Pink Room.</p>
+    <div class="grow"></div>
+    <div class="status" id="status" role="status">Saving the tour…</div>
+    <div class="bar"><i id="progress"></i></div>
+    <button id="begin" disabled><i></i><span id="begin-label">Start</span></button>
+    <p class="fine">Independent concept demo of an audio tour, made to share with Tel Aviv Museum of Art. Not an official museum app.</p>
+    <button class="textlink" data-open="notes">Testing notes</button>
+  </section>
+</div>
+
+<audio id="audio" preload="auto"></audio>
+<script src="guide.js" charset="utf-8"></script>
+<script>
+(() => {
+  const G = window.GUIDE;
+  const $ = (id) => document.getElementById(id);
+  const audio = $("audio"), feed = $("feed");
+  const stops = G.stops;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const ICON = {
+    pause: '<svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
+    play: '<svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M8 4.5v15l11.5-7.5z"/></svg>'
+  };
+  const S = { stop: -1, line: null, follow: true, wantPauseAt: null, started: false, offline: false };
+
+  /* ---------- build the feed ---------- */
+  $("room-name").textContent = G.room.name;
+  const cards = stops.map((s, i) => {
+    const el = document.createElement("article");
+    el.className = "card"; el.dataset.i = i;
+    const img = document.createElement("img"); img.alt = s.title; img.dataset.src = `img/${s.img}.jpg`;
+    if (s.img === "stalking" || s.img === "handmaid") img.className = "tall";
+    el.append(img);
+    const meta = document.createElement("div"); meta.className = "meta";
+    const h = document.createElement("h2"); h.textContent = s.title; meta.append(h);
+    if (s.year) { const y = document.createElement("span"); y.className = "year"; y.textContent = s.year; meta.append(y); }
+    el.append(meta);
+    if (s.also) { const a = document.createElement("p"); a.className = "also"; a.textContent = s.also; el.append(a); }
+    const p = document.createElement("p"); p.className = "script";
+    s.lines.forEach((l, n) => {
+      const sp = document.createElement("span"); sp.textContent = l.t + " "; l.el = sp; p.append(sp);
+      if (l.k === "prompt") { const d = document.createElement("i"); d.className = "lookdot"; d.setAttribute("aria-hidden", "true"); p.append(d); }
+    });
+    el.append(p);
+    const skip = document.createElement("button"); skip.className = "skip"; skip.textContent = i === stops.length - 1 ? "Finish" : "Skip this one";
+    skip.onclick = (e) => { e.stopPropagation(); skipOn(); };
+    el.append(skip);
+    el.onclick = () => { if (i !== S.stop) jumpTo(i); };
+    $("cards").append(el);
+    return el;
+  });
+
+  /* ---------- save everything before the gallery ---------- */
+  const blobs = {};
+  async function fetchBlob(path, type, onProgress) {
+    const r = await fetch(path);
+    if (!r.ok) throw new Error(path);
+    const total = +r.headers.get("content-length") || 0;
+    if (!r.body || !total || !onProgress) { const b = await r.blob(); return new Blob([b], { type: type || b.type }); }
+    const rd = r.body.getReader(), parts = []; let got = 0;
+    for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(value); got += value.length; onProgress(got / total); }
+    return new Blob(parts, { type: type || r.headers.get("content-type") || "" });
+  }
+  async function saveTour() {
+    $("begin").disabled = true; $("status").textContent = "Saving the tour…";
+    try {
+      const reg = await registerWorker();
+      const imgs = [...new Set(stops.map(s => s.img))];
+      const trackShare = 0.7;
+      const track = await fetchBlob("track.mp4", "audio/mp4", (f) => { $("progress").style.width = f * trackShare * 100 + "%"; });
+      blobs.track = URL.createObjectURL(track);
+      let n = 0;
+      await Promise.all(imgs.map(async (name) => {
+        blobs[name] = URL.createObjectURL(await fetchBlob(`img/${name}.jpg`, "image/jpeg"));
+        n++; $("progress").style.width = (trackShare + (1 - trackShare) * n / imgs.length) * 100 + "%";
+      }));
+      for (const c of cards) { const im = c.querySelector("img"); const name = im.dataset.src.match(/img\/(.+)\.jpg/)[1]; im.src = blobs[name]; }
+      $("hero").src = blobs.intro;
+      audio.src = blobs.track;
+      S.offline = !!reg;
+      document.querySelector(".bar").hidden = true;
+      $("status").textContent = reg ? "Saved on this phone. No reception needed." : "Ready. Keep this page open and you won't need reception.";
+      $("begin").disabled = false;
+    } catch (e) {
+      $("status").textContent = "Couldn't save the tour. Connect to Wi-Fi and tap to try again.";
+      $("begin-label").textContent = "Try again";
+      $("begin").disabled = false;
+      $("begin").onclick = () => { $("begin-label").textContent = "Start"; $("begin").onclick = begin; saveTour(); };
+    }
+  }
+  // Only works where the page is hosted on its own site; a claude.ai page can't use one.
+  async function registerWorker() {
+    try {
+      if (!("serviceWorker" in navigator)) return null;
+      const hadOld = !!navigator.serviceWorker.controller;
+      // A new version arrived: load it once, unless the tour is already playing.
+      navigator.serviceWorker.addEventListener("controllerchange", () => { if (hadOld && !S.started) location.reload(); });
+      const reg = await navigator.serviceWorker.register("sw.js");
+      const w = reg.installing || reg.waiting;
+      if (w && w.state !== "activated") await new Promise((res) => { w.addEventListener("statechange", () => { if (w.state === "activated" || w.state === "redundant") res(); }); setTimeout(res, 15000); });
+      return (await caches.match("track.mp4")) ? reg : null;
+    } catch { return null; }
+  }
+  function begin() {
+    $("start").hidden = true;
+    S.started = true; S.follow = true;
+    audio.currentTime = 0;
+    audio.play().catch(() => setPlayUI(false));
+    tick();
+  }
+  $("begin").onclick = begin;
+
+  /* ---------- playback ---------- */
+  function stopAt(t) { let i = 0; for (let k = 0; k < stops.length; k++) if (t >= stops[k].start) i = k; return i; }
+  function lineAt(s, t) { return s.lines.find(l => t >= l.a && t < l.b) || null; }
+  function tick() {
+    const t = audio.currentTime;
+    if (S.wantPauseAt !== null && t >= S.wantPauseAt) { S.wantPauseAt = null; audio.pause(); }
+    const i = stopAt(t);
+    if (i !== S.stop) setStop(i);
+    const s = stops[i], line = lineAt(s, t);
+    if (line !== S.line) {
+      if (S.line) S.line.el.classList.remove("cur");
+      S.line = line;
+      if (line) line.el.classList.add("cur");
+    }
+    for (const l of s.lines) l.el.classList.toggle("past", t >= l.b);
+    // In the silence after a question, a small red dot shows the guide is waiting with you.
+    const prompt = [...s.lines].reverse().find(l => l.k === "prompt"), reveal = s.lines.find(l => l.k === "reveal");
+    cards[i].classList.toggle("looking", !!(prompt && reveal && t >= prompt.b && t < reveal.a));
+    if (line) follow();
+  }
+  function setStop(i) {
+    S.stop = i;
+    cards.forEach((c, k) => {
+      c.classList.toggle("now", k === i); c.classList.toggle("done", k < i);
+      if (k !== i) { c.classList.remove("looking"); stops[k].lines.forEach(l => { l.el.classList.remove("cur"); l.el.classList.toggle("past", k < i); }); }
+    });
+    S.line = null;
+    const numbered = stops.filter(s => s.kind !== "intro");
+    const n = numbered.indexOf(stops[i]);
+    $("pos").textContent = n < 0 ? "Intro" : `${n + 1} of ${numbered.length}`;
+    updateMedia(); renderIndex();
+  }
+  let lastTarget = -1;
+  function follow(force) {
+    if (!S.follow && !force) return;
+    const el = (S.line && S.line.el) || cards[S.stop];
+    if (!el) return;
+    const fr = feed.getBoundingClientRect(), r = el.getBoundingClientRect();
+    const headH = $("room-head").offsetHeight;
+    const card = cards[S.stop].getBoundingClientRect();
+    // Keep the artwork in view as long as the sentence still fits; otherwise bring the sentence up.
+    const room = fr.height * 0.8;
+    const target = (r.bottom - card.top + headH + 16 < room) ? feed.scrollTop + card.top - fr.top - headH - 6 : feed.scrollTop + r.top - fr.top - fr.height * 0.32;
+    if (Math.abs(target - lastTarget) < 4 && !force) return;
+    lastTarget = target;
+    // Small moves glide like lyrics; big jumps land straight away.
+    const far = Math.abs(target - feed.scrollTop) > fr.height * 1.5;
+    feed.scrollTo({ top: target, behavior: reduced || far ? "auto" : "smooth" });
+  }
+  function userScrolled() { if (S.started && S.follow) { S.follow = false; $("now").hidden = false; } }
+  feed.addEventListener("touchmove", userScrolled, { passive: true });
+  feed.addEventListener("wheel", userScrolled, { passive: true });
+  $("now").onclick = () => { S.follow = true; $("now").hidden = true; lastTarget = -1; follow(true); };
+
+  audio.addEventListener("timeupdate", tick);
+  // Lines change faster than timeupdate fires; keep the highlight tight while the screen is on.
+  (function raf() { if (S.started && !audio.paused && !document.hidden) tick(); requestAnimationFrame(raf); })();
+  audio.addEventListener("play", () => setPlayUI(true));
+  audio.addEventListener("pause", () => setPlayUI(false));
+  audio.addEventListener("ended", () => { setPlayUI(false); $("endcard").classList.add("on"); S.follow = true; $("now").hidden = true; $("endcard").scrollIntoView({ behavior: reduced ? "auto" : "smooth" }); });
+  audio.addEventListener("error", () => { if (S.started) $("pos").textContent = "Audio problem"; });
+  function setPlayUI(on) {
+    const showPlaying = on && S.wantPauseAt === null;
+    $("pp").innerHTML = showPlaying ? ICON.pause : ICON.play;
+    $("pp").classList.toggle("on", showPlaying);
+    $("pp").setAttribute("aria-label", showPlaying ? "Pause" : "Play");
+    if ("mediaSession" in navigator) navigator.mediaSession.playbackState = on ? "playing" : "paused";
+  }
+  // Pause lands at the end of the sentence, never mid-word.
+  function togglePlay() {
+    if (audio.paused) { S.wantPauseAt = null; audio.play().catch(() => {}); return; }
+    if (S.wantPauseAt !== null) { S.wantPauseAt = null; setPlayUI(true); return; }
+    const line = lineAt(stops[stopAt(audio.currentTime)], audio.currentTime);
+    if (line) { S.wantPauseAt = line.b; setPlayUI(true); } else audio.pause();
+  }
+  $("pp").onclick = togglePlay;
+  function seek(t) { S.wantPauseAt = null; audio.currentTime = Math.max(0, t); if (audio.paused) audio.play().catch(() => {}); tick(); lastTarget = -1; S.follow = true; $("now").hidden = true; follow(true); }
+  function jumpTo(i) { seek(stops[i].start); }
+  // Skip goes to the stop's bridge; if we're already there, on to the next work.
+  function skipOn() {
+    const t = audio.currentTime, i = stopAt(t), s = stops[i];
+    const bridge = [...s.lines].reverse().find(l => l.k === "bridge");
+    if (bridge && t < bridge.a - 0.2) return seek(bridge.a);
+    if (i < stops.length - 1) return jumpTo(i + 1);
+    audio.currentTime = audio.duration || t; audio.pause(); audio.dispatchEvent(new Event("ended"));
+  }
+  $("again").onclick = () => { $("endcard").classList.remove("on"); seek(0); };
+  function updateMedia() {
+    if (!("mediaSession" in navigator)) return;
+    const s = stops[S.stop]; if (!s) return;
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({ title: s.title, artist: "Noma Bar: Look Again", album: G.room.name,
+        artwork: [{ src: new URL(`img/${s.img}.jpg`, location.href).href, sizes: "1200x900", type: "image/jpeg" }] });
+      navigator.mediaSession.setActionHandler("play", () => { if (audio.paused) togglePlay(); });
+      navigator.mediaSession.setActionHandler("pause", () => { if (!audio.paused) togglePlay(); });
+      navigator.mediaSession.setActionHandler("nexttrack", () => skipOn());
+      navigator.mediaSession.setActionHandler("previoustrack", () => jumpTo(S.stop));
+    } catch {}
+  }
+
+  /* ---------- room index ---------- */
+  function renderIndex() {
+    const ul = $("idx"); ul.textContent = "";
+    const rm = (name, note, cur) => { const li = document.createElement("li"); li.className = "rm" + (cur ? " cur-room" : ""); li.textContent = name; if (note) { const n = document.createElement("small"); n.textContent = note; li.append(n); } ul.append(li); };
+    G.otherRooms.before.forEach(r => rm(r, "Not in this test"));
+    rm(G.room.name, "", true);
+    stops.forEach((s, i) => {
+      const li = document.createElement("li"); li.className = "st" + (i === S.stop ? " now" : "");
+      const b = document.createElement("button"); b.textContent = s.title;
+      b.onclick = () => { $("index").hidden = true; jumpTo(i); };
+      li.append(b); ul.append(li);
+    });
+    G.otherRooms.after.forEach(r => rm(r, "Not in this test"));
+  }
+  $("room-head").onclick = () => { renderIndex(); $("index").hidden = false; };
+
+  /* ---------- notes ---------- */
+  function buildNotes() {
+    const esc = (s) => String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+    const TYPE = { intro: "Room intro", close: "Close look", story: "Story", quick: "Quick pass" };
+    const rows = stops.map(s => `<tr><td>${esc(s.map || "")}</td><td>${esc(s.title)}${s.also ? `<br><small>${esc(s.also)}</small>` : ""}</td><td>${TYPE[s.kind]}</td><td>${esc(s.src)}</td></tr>`).join("");
+    const mins = Math.round(G.duration / 6) / 10;
+    $("notes-body").innerHTML = `
+      <p>The White &amp; Pink Room as one continuous ${mins}-minute track. The guide asks, waits, and answers itself. You don't need to touch anything.</p>
+      <h3>Voice right now</h3>
+      <p>${esc(G.voice)}. Judge the pacing and script, not the sound. The new voice replaces it once the ElevenLabs account is set up.</p>
+      <h3>Before you go in</h3>
+      <ol>
+        <li>Open this page on Wi-Fi or at home, and wait until it says the tour is ready.</li>
+        <li>Try it once in airplane mode before the visit.</li>
+        <li>On this claude.ai link, keep the page open: if the phone reloads it without reception, it can't load again. The hosted version won't have this problem.</li>
+      </ol>
+      <h3>Self-test (from your spec)</h3>
+      <ul>
+        <li>Finish the room touching the phone fewer than 3 times.</li>
+        <li>Time looking at the art feels larger than time looking at the screen.</li>
+        <li>The guide never feels like it's quizzing you.</li>
+        <li>No playback failures with no reception.</li>
+        <li>The voice doesn't break the spell (test again with the new voice).</li>
+      </ul>
+      <h3>Controls</h3>
+      <ul>
+        <li><b>Red button or headphone button:</b> pause, at the end of the sentence.</li>
+        <li><b>Skip this one:</b> jumps to the line that moves you on. A second press goes to the next work. Your headphones' next-track button does the same, where the phone allows it.</li>
+        <li><b>Scroll:</b> the feed stops following. <b>Back to now</b> returns it.</li>
+        <li><b>Tap another card, or the room name at the top:</b> jump to a work.</li>
+      </ul>
+      <h3>Changed from your spec</h3>
+      <ul>
+        <li>Skip is a button, because swiping up would clash with scrolling.</li>
+        <li>Pause is the red button, because tapping anywhere would misfire while scrolling.</li>
+        <li>About 8 seconds of silence for walking between works, not 20. The guide can't tell when you've arrived, so pause if you need longer.</li>
+        <li>Left out for now, as your scope says: live questions and Tell me more.</li>
+      </ul>
+      <h3>Please check</h3>
+      <ul>
+        <li>Your map has two 5s. I used posters first, then The Handmaid's Tale.</li>
+        <li>Directions come from your map and the photos, so check them on the walk.</li>
+        <li>The poster label's text was too blurry to read. A sharp photo of it would help.</li>
+      </ul>
+      <h3>Every stop</h3>
+      <div class="tablewrap"><table><thead><tr><th>Map</th><th>Stop</th><th>Type</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <h3>Credits</h3>
+      <p>Installation photography: Daniel Hanoch (museum website). Works © Noma Bar. Independent concept demo, not an official museum app.</p>`;
+  }
+  document.addEventListener("click", (e) => {
+    const o = e.target.closest("[data-open]"); if (o) { if (!$("notes-body").firstChild) buildNotes(); $(o.dataset.open).hidden = false; return; }
+    const c = e.target.closest("[data-close]"); if (c) $(c.dataset.close).hidden = true;
+  });
+
+  /* ---------- boot ---------- */
+  setStop(0); setPlayUI(false);
+  if (location.hash === "#notes") { buildNotes(); $("notes").hidden = false; }
+  saveTour();
+  window.__guide = { audio, stops, S, seek, skipOn };
+})();
+</script>
+
+</body>
+</html>
