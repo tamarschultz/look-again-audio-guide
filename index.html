@@ -1,12 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
-<meta charset="utf-8">
+
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#000000">
 <meta property="og:title" content="Look Again: audio tour concept">
 <meta property="og:description" content="Concept demo of an audio tour for Noma Bar: Look Again. Not an official museum app.">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<meta charset="utf-8">
 <title>Look Again</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,9 +33,10 @@
 html, body { height: 100%; }
 body { background: var(--bg); color: var(--fg); font-family: var(--sans); overflow: hidden; -webkit-font-smoothing: antialiased; }
 button { background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
 button:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
 
-.screen { height: 100%; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; justify-content: space-between; min-height: 0; position: relative; padding-block: calc(54px + env(safe-area-inset-top, 0px)) calc(26px + env(safe-area-inset-bottom, 0px)); box-sizing: border-box; }
+.screen { height: 100%; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; justify-content: space-between; min-height: 0; position: relative; padding-block: calc(102px + env(safe-area-inset-top, 0px)) calc(26px + env(safe-area-inset-bottom, 0px)); box-sizing: border-box; }
 .stage { height: min(calc(100vw - 16px), 54vh, 544px); position: relative; overflow: hidden; }
 /* Placed from the stage's centre, so the canvas's pixel size can never push it sideways. */
 #work { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(calc(100% - 16px), 54vh); aspect-ratio: 1; max-width: 100%; border-radius: 50%; z-index: 2; touch-action: pan-y; transition: transform .6s var(--ease); }
@@ -53,8 +55,12 @@ body.browse #orbs { opacity: 1; }
 .orb img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 /* The header: gallery, the exhibition, settings. The work's own name sits with the image and follows it. */
-.head { flex: none; display: grid; grid-template-columns: 48px minmax(0, 1fr) 48px; align-items: center; gap: 4px; padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); }
+/* It stays on every screen, over the menus too; only the middle changes: the museum on the menu, the exhibition inside it. */
+.head { position: fixed; top: 0; left: 0; right: 0; z-index: 8; max-width: 560px; margin-inline: auto; box-sizing: border-box; min-height: calc(102px + env(safe-area-inset-top, 0px)); display: grid; grid-template-columns: 48px minmax(0, 1fr) 48px; align-items: center; gap: 4px; padding-top: calc(48px + env(safe-area-inset-top, 0px)); padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); pointer-events: none; }
+.head > * { pointer-events: auto; }
 #exhibition { text-align: center; font-size: 15px; font-weight: 600; color: var(--dim); min-width: 0; text-wrap: balance; }
+body.home #exhibition { display: none; }
+body.home #openRooms { visibility: hidden; }
 .mid { flex: none; }
 .plaque { text-align: center; min-height: 76px; display: flex; flex-direction: column; justify-content: flex-end; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); transition: transform .6s var(--ease); }
 body.browse .plaque { transform: translateY(var(--drop, 0px)); }
@@ -73,16 +79,16 @@ body.browse .below { opacity: 1; pointer-events: auto; }
 .play { width: 60px; height: 60px; display: grid; place-items: center; border-radius: 50%; border: 1.5px solid var(--dim); }
 .play svg { width: 26px; height: 26px; fill: var(--fg); }
 
-.tool { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; opacity: 0; pointer-events: none; transition: opacity .35s; }
-body.browse .tool { opacity: 1; pointer-events: auto; }
+.tool { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; }
 .tool svg { width: 24px; height: 24px; }
 #openRooms svg { fill: var(--fg); }
 #openSettings svg { fill: none; stroke: var(--fg); stroke-width: 1.6; stroke-linecap: round; }
 
 /* Gallery and settings are full screens over the work. */
-.panel { position: fixed; inset: 0; z-index: 5; max-width: 560px; margin-inline: auto; background: var(--solid); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); display: flex; flex-direction: column; padding-top: calc(60px + env(safe-area-inset-top, 0px)); opacity: 0; transform: translateY(16px); visibility: hidden; transition: opacity .3s, transform .4s var(--ease), visibility 0s .4s; }
+.panel { position: fixed; inset: 0; z-index: 5; max-width: 560px; margin-inline: auto; background: var(--solid); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); display: flex; flex-direction: column; padding-top: calc(108px + env(safe-area-inset-top, 0px)); opacity: 0; transform: translateY(16px); visibility: hidden; transition: opacity .3s, transform .4s var(--ease), visibility 0s .4s; }
 .panel.on { opacity: 1; transform: none; visibility: visible; transition: opacity .3s, transform .4s var(--ease); }
 .panel h1 { flex: none; font-size: 28px; line-height: 1.15; font-weight: 600; margin: 0; padding-block: 4px 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.panel h1 { padding-inline-end: 64px; }
 .scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-block: 0 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 #roomList h2 { font-size: 15px; font-weight: 600; color: var(--dim); margin: 22px 0 12px; padding-top: 14px; border-top: 1px solid var(--hair); }
 #roomList h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
@@ -90,31 +96,50 @@ body.browse .tool { opacity: 1; pointer-events: auto; }
 .cell { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; text-align: center; font-size: 13px; line-height: 1.2; color: var(--fg); }
 .cell img { width: 100%; max-width: 104px; aspect-ratio: 1; border-radius: 50%; object-fit: cover; background: #1a1a1a; opacity: .8; }
 .cell[aria-current="true"] img { opacity: 1; outline: 2px solid var(--fg); outline-offset: 3px; }
-.x { position: absolute; top: calc(52px + env(safe-area-inset-top, 0px)); right: max(8px, env(safe-area-inset-right, 0px)); z-index: 2; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; }
+.x { position: absolute; top: calc(102px + env(safe-area-inset-top, 0px)); inset-inline-end: max(8px, env(safe-area-inset-right, 0px)); z-index: 2; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; }
 .x svg { width: 24px; height: 24px; fill: none; stroke: var(--fg); stroke-width: 1.8; stroke-linecap: round; }
 
 /* All exhibitions: the first screen, and where the gallery's back button leads. */
-.back { flex: none; align-self: flex-start; min-height: 44px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: var(--fg); margin-bottom: 8px; margin-left: max(16px, env(safe-area-inset-left, 0px)); }
+.back { flex: none; align-self: flex-start; min-height: 44px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: var(--fg); margin-bottom: 8px; margin-inline-start: max(16px, env(safe-area-inset-left, 0px)); }
 .back svg { width: 18px; height: 18px; fill: none; stroke: var(--fg); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-#home { background: var(--bg); z-index: 6; }
-#brand { flex: none; align-self: flex-start; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin: 0 0 18px max(16px, env(safe-area-inset-left, 0px)); transform-origin: center; transition: transform 1s var(--ease); }
-#brand small { font-size: 12px; color: var(--dim); }
-#brand img { display: block; height: 66px; width: auto; max-width: calc(100vw - 32px); margin-left: -2px; filter: invert(1); }
+#home { background: var(--bg); z-index: 6; padding-top: calc(118px + env(safe-area-inset-top, 0px)); }
+#brand { display: none; flex-direction: column; align-items: center; gap: 4px; min-width: 0; transform-origin: center; transition: transform 1s var(--ease); }
+body.home #brand { display: flex; }
+#brand small { font-size: 11px; color: var(--dim); }
+#brand img { display: block; height: 44px; width: auto; max-width: 100%; filter: invert(1); }
+html[dir="rtl"] .arrow svg, html[dir="rtl"] .back svg { transform: scaleX(-1); }
+
+/* The very first screen: which language. Hebrew first; only Hebrew and English work in this prototype. */
+#lang { z-index: 9; background: var(--bg); padding-top: calc(48px + env(safe-area-inset-top, 0px)); }
+#lang .logo { align-self: center; display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 9vh; }
+#lang .logo small { font-size: 11px; color: var(--dim); }
+#lang .logo img { height: 44px; width: auto; filter: invert(1); }
+#lang h1 { text-align: center; font-size: 22px; color: var(--dim); font-weight: 400; padding-bottom: 22px; line-height: 1.4; }
+.langs { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-inline: 24px; }
+.langs .big { width: min(100%, 320px); min-height: 64px; border-radius: 32px; font-size: 24px; font-weight: 600; background: #1e1e1d; }
+.langs .big:first-child { background: var(--fg); color: #000; }
+.others { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 6px; margin-top: 26px; max-width: 340px; }
+.others button { min-height: 40px; padding-inline: 12px; font-size: 16px; color: var(--dim); }
+
+/* A note for anything this prototype does not do yet. */
+#toast { position: fixed; left: 50%; bottom: calc(40px + env(safe-area-inset-bottom, 0px)); z-index: 20; width: max-content; max-width: calc(100vw - 48px); transform: translate(-50%, 12px); padding: 12px 18px; border-radius: 14px; background: #f4f4f2; color: #000; font-size: 15px; line-height: 1.35; text-align: center; opacity: 0; pointer-events: none; transition: opacity .25s, transform .35s var(--ease); }
+#toast.on { opacity: 1; transform: translate(-50%, 0); }
+.soon { opacity: .5; }
 #home h1 { font-size: 24px; padding-bottom: 12px; text-wrap: balance; transition: opacity .6s .55s; }
 #exList { padding-bottom: 28px; }
-body.intro #brand { transform: translate(var(--riseX, 0px), var(--rise, 0px)) scale(1.2); transition: none; }
+body.intro #brand { transform: translate(var(--riseX, 0px), var(--rise, 0px)) scale(1.9); transition: none; }
 body.intro #home h1 { opacity: 0; }
 body.intro #home h1 { transition: none; }
 @keyframes rowIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 body.intro-rows .ex { animation: rowIn .6s var(--ease) both; animation-delay: calc(1.75s + var(--n) * 60ms); }
-.ex { display: grid; grid-template-columns: 84px minmax(0, 1fr); align-items: center; gap: 14px; width: 100%; text-align: left; padding-block: 8px; }
+.ex { display: grid; grid-template-columns: 84px minmax(0, 1fr); align-items: center; gap: 14px; width: 100%; text-align: start; padding-block: 8px; }
 .ex img { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; background: #1a1a1a; }
 .ex span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .ex b { font-size: 18px; line-height: 1.22; font-weight: 600; color: var(--fg); text-wrap: balance; }
 .ex small { font-size: 14px; color: var(--dim); }
-.ex:disabled { cursor: default; }
-.ex:disabled img { opacity: .7; }
-.ex:disabled b { font-weight: 400; color: #c9c9c5; }
+.ex.soon { opacity: 1; }
+.ex.soon img { opacity: .7; }
+.ex.soon b { font-weight: 400; color: #c9c9c5; }
 
 /* Settings */
 .group { padding-block: 10px 30px; }
@@ -152,73 +177,74 @@ body.intro-rows .ex { animation: rowIn .6s var(--ease) both; animation-delay: ca
 
 
 <script src="guide-v4.js"></script>
+<script src="guide-he.js"></script>
 <main class="screen">
   <header class="head">
-    <button class="tool" id="openRooms" type="button" aria-label="Gallery"><svg viewBox="0 0 24 24"><circle cx="6.5" cy="6.5" r="3"/><circle cx="17.5" cy="6.5" r="3"/><circle cx="6.5" cy="17.5" r="3"/><circle cx="17.5" cy="17.5" r="3"/></svg></button>
-    <div id="exhibition">Noma Bar: Look Again</div>
-    <button class="tool" id="openSettings" type="button" aria-label="Settings"><svg viewBox="0 0 24 24"><path d="M4 7h9M18.5 7H20M4 17h1.5M11 17h9"/><circle cx="15.8" cy="7" r="2.6"/><circle cx="8.2" cy="17" r="2.6"/></svg></button>
+    <button class="tool" id="openRooms" type="button" data-aria="gallery"><svg viewBox="0 0 24 24"><circle cx="6.5" cy="6.5" r="3"/><circle cx="17.5" cy="6.5" r="3"/><circle cx="6.5" cy="17.5" r="3"/><circle cx="17.5" cy="17.5" r="3"/></svg></button>
+    <div id="exhibition" data-t="exName"></div>
+    <div id="brand"><small data-t="demoFor"></small><img src="img/museum-logo.png" data-alt="museum"></div>
+    <button class="tool" id="openSettings" type="button" data-aria="settings"><svg viewBox="0 0 24 24"><path d="M4 7h9M18.5 7H20M4 17h1.5M11 17h9"/><circle cx="15.8" cy="7" r="2.6"/><circle cx="8.2" cy="17" r="2.6"/></svg></button>
   </header>
   <div class="mid">
   <div class="plaque" aria-live="polite"><div id="title"></div><div id="meta"></div></div>
   <section class="stage" id="stage">
     <div id="orbs" aria-hidden="true"></div>
-    <nav id="track" aria-label="All works in route order"></nav>
-    <button id="work" type="button" aria-label="Show controls"><canvas id="c" aria-hidden="true"></canvas></button>
+    <nav id="track" data-aria="allWorks"></nav>
+    <button id="work" type="button"><canvas id="c" aria-hidden="true"></canvas></button>
   </section>
   </div>
   <section class="below" id="below">
     <div class="controls">
-      <button class="arrow" id="prev" type="button" aria-label="Previous work"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <button class="play" id="play" type="button" aria-label="Pause"><svg viewBox="0 0 24 24"><g id="iconPause"><rect x="6.5" y="5" width="3.6" height="14" rx="1"/><rect x="13.9" y="5" width="3.6" height="14" rx="1"/></g><path id="iconPlay" d="M8 5.2v13.6a.6.6 0 0 0 .9.5l10.6-6.8a.6.6 0 0 0 0-1L8.9 4.7a.6.6 0 0 0-.9.5z" style="display:none"/></svg></button>
-      <button class="arrow" id="next" type="button" aria-label="Next work"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+      <button class="arrow" id="prev" type="button" data-aria="prev"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="play" id="play" type="button"><svg viewBox="0 0 24 24"><g id="iconPause"><rect x="6.5" y="5" width="3.6" height="14" rx="1"/><rect x="13.9" y="5" width="3.6" height="14" rx="1"/></g><path id="iconPlay" d="M8 5.2v13.6a.6.6 0 0 0 .9.5l10.6-6.8a.6.6 0 0 0 0-1L8.9 4.7a.6.6 0 0 0-.9.5z" style="display:none"/></svg></button>
+      <button class="arrow" id="next" type="button" data-aria="next"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
     </div>
   </section>
-  <aside id="home" class="panel on" aria-label="All exhibitions">
-    <button class="x" id="closeHome" type="button" aria-label="Close" hidden><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <div id="brand"><small>Concept demo for</small><img src="img/museum-logo.png" alt="Tel Aviv Museum of Art"></div>
-    <h1>What exhibition are you visiting?</h1>
+  <aside id="lang" class="panel on">
+    <div class="logo"><small>Concept demo · הדגמת קונספט</small><img src="img/museum-logo.png" alt="Tel Aviv Museum of Art"></div>
+    <h1>בחרו שפה<br>Choose a language</h1>
+    <div class="langs">
+      <button class="big" type="button" lang="he" data-pick="he">עברית</button>
+      <button class="big" type="button" lang="en" data-pick="en">English</button>
+      <div class="others" id="otherLangs"></div>
+    </div>
+  </aside>
+  <aside id="home" class="panel" inert>
+    <button class="x" id="closeHome" type="button" data-aria="close" hidden><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <h1 data-t="which"></h1>
     <div id="exList" class="scroll"></div>
   </aside>
-  <aside id="rooms" class="panel" aria-label="Gallery" inert>
-    <button class="x" data-close type="button" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <button class="back" id="toHome" type="button"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>All exhibitions</button>
-    <h1>Gallery</h1>
+  <aside id="rooms" class="panel" inert>
+    <button class="x" data-close type="button" data-aria="close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="back" id="toHome" type="button"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg><span data-t="allEx"></span></button>
+    <h1 data-t="gallery"></h1>
     <div id="roomList" class="scroll"></div>
   </aside>
-  <aside id="settings" class="panel" aria-label="Settings" inert>
-    <button class="x" data-close type="button" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <h1>Settings</h1>
+  <aside id="settings" class="panel" inert>
+    <button class="x" data-close type="button" data-aria="close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <h1 data-t="settings"></h1>
     <div class="scroll">
       <section class="group">
-        <h2>How much do you want to hear?</h2>
+        <h2 data-t="howMuch"></h2>
         <p id="scaleName"></p>
         <div class="scale">
           <div class="dots" id="scaleDots" aria-hidden="true"></div>
-          <input id="scale" type="range" min="0" max="4" step="1" value="2" aria-label="How much you want to hear">
+          <input id="scale" type="range" min="0" max="4" step="1" value="2" data-aria="howMuch">
         </div>
-        <div class="ends"><span>Short</span><span>Fully detailed</span></div>
+        <div class="ends"><span data-t="endShort"></span><span data-t="endLong"></span></div>
       </section>
       <section class="group flavours">
-        <h2>Flavours</h2>
+        <h2 data-t="flavours"></h2>
         <div id="flavours" class="pills"></div>
-        <button id="resetFlavours" type="button" hidden>Back to recommended</button>
+        <button id="resetFlavours" type="button" data-t="reset" hidden></button>
       </section>
       <section class="group">
-        <h2>Language</h2>
-        <div class="pills">
-          <button class="pill" type="button" aria-pressed="true">English</button>
-          <button class="pill" type="button" disabled>עברית</button>
-          <button class="pill" type="button" disabled>العربية</button>
-          <button class="pill" type="button" disabled>Русский</button>
-          <button class="pill" type="button" disabled>አማርኛ</button>
-          <button class="pill" type="button" disabled>Français</button>
-          <button class="pill" type="button" disabled>Español</button>
-          <button class="pill" type="button" disabled>日本語</button>
-          <button class="pill" type="button" disabled>中文</button>
-        </div>
+        <h2 data-t="language"></h2>
+        <div class="pills" id="langPills"></div>
       </section>
     </div>
   </aside>
+  <div id="toast" role="status"></div>
 </main>
 
 <script>
@@ -232,22 +258,68 @@ const ROOMS = [
   [["Book of Opposites","2026","opposites"],["De Ontmoeting","Since 2003","grid"],["Haruki Murakami","2012","murakami"],["The Great Indoors","","squares"]],
   [["Film and early work","","early"]]
 ];
-const WORKS = ROOMS.flat().map(([title, year, img]) => ({ title, year, img }));
+// Hebrew titles: my translations, to check against the wall labels.
+const HE_TITLE = {
+  entrance: "שלום", pointed: "חוש מחודד", portraits: "קיר הדיוקנאות", heartfull: "סם אהבה", lookout: "שימו לב",
+  film: "לראות קולנוע אחרת", handmaid: "סיפורה של שפחה", stalking: "מעקב", whichcame: "מה בא קודם?", facingup: "פנים אל פנים",
+  sml: "S.M.L", peace: "שלום", nighttrain: "רכבת לילה ללונדון", eye: "מי מסתכל עליך ב־2020?", howigot: "איך עברתי את זה",
+  doublebill: "הקרנה כפולה", shyguy: "הביישן", wolves: "היזהרו מהזאבים", vocalfry: "קול חורק",
+  rabbit: "מעברים", faces: "הטור הזה ישנה את חייך", optimistic: "אופטימי ופסימי", seethingsround: "לראות דברים אחרת",
+  whatyousee: "מה שרואים / מה שמקבלים", zerok: "Zero K", timetochange: "הגיע הזמן לשינוי",
+  bigdog: "מחשבה אבולוציונית 2", summer: "קיץ תל אביבי", vanda: "V&A", coke: "קוקה־קולה", unmaskingbook: "לחשוף רוצח",
+  opposites: "ספר ההפכים", grid: "De Ontmoeting", murakami: "הארוקי מורקמי", squares: "The Great Indoors", early: "סרט ועבודות מוקדמות"
+};
+const WORKS = ROOMS.flat().map(([title, year, img]) => ({ title, year, img, he: HE_TITLE[img] || title }));
 
 // From the museum's What's On page.
 const EXHIBITIONS = [
-  ["Noma Bar: Look Again", "Until 16/1/27", "noma", true],
-  ["Alex Levac: Black Box", "Until 1/5/27", "levac"],
-  ["Tom Wesselmann: All Out", "Until 26/12/26", "wesselmann"],
-  ["Vision of the New Bones: Jewish Imaginations after 1940", "Until 16/1/27", "newbones"],
-  ["Ilana Dotan: Shelf Life", "Until 28/11/26", "dotan"],
-  ["Beyond Small: Miniature Worlds in Contemporary Art", "Until 12/12/26", "beyondsmall"],
-  ["Playing with Scale", "Until 9/1/27", "playing"],
-  ["Dmitri Cherniak: Ringers in Motion", "Until 5/12/26", "cherniak"],
-  ["Simply Draw at the Museum", "Until 30/4/27", "simplydraw"],
-  ["Year Zero", "Until 7/11/26", "yearzero"],
-  ["Miriam Cahn: Dream Command", "Opens 14/12/26", "cahn"]
+  // English, Hebrew, date, picture, and whether it works in this prototype. Hebrew names other than the first two are mine, to check.
+  ["Noma Bar: Look Again", "נומה בר: מצד שני", "until 16/1/27", "noma", true],
+  ["Alex Levac: Black Box", "אלכס ליבק: קופסה שחורה", "until 1/5/27", "levac"],
+  ["Tom Wesselmann: All Out", "טום וסלמן: הכול בחוץ", "until 26/12/26", "wesselmann"],
+  ["Vision of the New Bones: Jewish Imaginations after 1940", "חזון העצמות החדשות: דמיונות יהודיים אחרי 1940", "until 16/1/27", "newbones"],
+  ["Ilana Dotan: Shelf Life", "אילנה דותן: חיי מדף", "until 28/11/26", "dotan"],
+  ["Beyond Small: Miniature Worlds in Contemporary Art", "מעבר לקטן: עולמות זעירים באמנות העכשווית", "until 12/12/26", "beyondsmall"],
+  ["Playing with Scale", "משחקים בקנה מידה", "until 9/1/27", "playing"],
+  ["Dmitri Cherniak: Ringers in Motion", "דמיטרי צ'רניאק: Ringers בתנועה", "until 5/12/26", "cherniak"],
+  ["Simply Draw at the Museum", "פשוט לצייר במוזיאון", "until 30/4/27", "simplydraw"],
+  ["Year Zero", "שנת האפס", "until 7/11/26", "yearzero"],
+  ["Miriam Cahn: Dream Command", "מרים קאהן: פקודת חלום", "opens 14/12/26", "cahn"]
 ];
+
+// Every word on screen, in both working languages.
+const STR = {
+  en: {
+    exName: "Noma Bar: Look Again", demoFor: "Concept demo for", museum: "Tel Aviv Museum of Art", which: "What exhibition are you visiting?",
+    allEx: "All exhibitions", gallery: "Gallery", settings: "Settings", howMuch: "How much do you want to hear?",
+    endShort: "Short", endLong: "Fully detailed", flavours: "Flavours", reset: "Back to recommended", language: "Language",
+    close: "Close", prev: "Previous work", next: "Next work", play: "Play", pause: "Pause", allWorks: "All works in route order",
+    showControls: "Show controls", listening: "The work you are listening to", room: n => `Room ${n}`, artist: "Noma Bar",
+    of: (i, n, t) => `${i} of ${n}: ${t}`, until: "Until", opens: "Opens", ready: "Getting the tour ready…",
+    scale: ["A taste", "Short", "Sweet spot", "Longer", "Fully detailed"],
+    flav: ["Editor's notes", "Little riddles", "Other works of art", "Historical facts", "Interesting anecdotes", "References", "Get to know the world", "Techniques", "Inspirations"],
+    soonLang: "This is a prototype. For now, only Hebrew and English work.",
+    soonEx: "This is a prototype. For now, only Noma Bar: Look Again works."
+  },
+  he: {
+    exName: "נומה בר: מצד שני", demoFor: "הדגמת קונספט עבור", museum: "מוזיאון תל אביב לאמנות", which: "באיזו תערוכה אתם מבקרים?",
+    allEx: "כל התערוכות", gallery: "גלריה", settings: "הגדרות", howMuch: "כמה תרצו לשמוע?",
+    endShort: "קצר", endLong: "מפורט במלואו", flavours: "טעמים", reset: "חזרה להמלצה", language: "שפה",
+    close: "סגירה", prev: "העבודה הקודמת", next: "העבודה הבאה", play: "הפעלה", pause: "השהיה", allWorks: "כל העבודות לפי סדר המסלול",
+    showControls: "הצגת הכפתורים", listening: "העבודה שאתם שומעים עכשיו", room: n => `חדר ${n}`, artist: "נומה בר",
+    of: (i, n, t) => `${i} מתוך ${n}: ${t}`, until: "עד", opens: "נפתחת ב־", ready: "מכינים את הסיור…",
+    scale: ["טעימה", "קצר", "בדיוק במידה", "קצת יותר", "מפורט במלואו"],
+    flav: ["הערות העורכת", "חידות קטנות", "יצירות אמנות אחרות", "עובדות היסטוריות", "אנקדוטות מעניינות", "הפניות", "להכיר את העולם", "טכניקות", "השראות"],
+    soonLang: "זהו אב טיפוס. בינתיים רק עברית ואנגלית עובדות.",
+    soonEx: "זהו אב טיפוס. בינתיים רק התערוכה של נומה בר עובדת."
+  }
+};
+const OTHER_LANGS = ["العربية", "Русский", "አማርኛ", "Français", "Español", "日本語", "中文"];
+let lang = "he";
+const tr = k => STR[lang][k];
+const rtl = () => lang === "he";
+const sgn = () => rtl() ? -1 : 1;   // in Hebrew the route runs right to left: the next work is on the left
+
 
 // Where the circle looks in photos whose work is off-centre: centre x, centre y, width of the crop, in image pixels.
 const FOCUS = { entrance: [640, 370, 720], eye: [265, 258, 500] };
@@ -395,7 +467,7 @@ function frame(now) {
   if (morph !== null) {
     // The change of work: a soft wave sweeps across in the direction of travel; old dots shrink as new dots grow on the same grid.
     morph = Math.min(1, morph + dt / (still ? .01 : 1.15));
-    const m = smooth(morph), w = .6, sweep = morphDir > 0 ? 1 : -1;
+    const m = smooth(morph), w = .6, sweep = morphDir * sgn() > 0 ? 1 : -1;
     const k = d => {
       const q = (sweep > 0 ? 1 - d.x / W : d.x / W) + .05 * Math.sin(d.y / W * 19 + d.x / W * 7);
       return smooth(clamp01((m * (1 + w + .1) - q) / w));
@@ -440,7 +512,7 @@ function trackAt() {
     if (k >= 1) slide = null;
     else return slide.from + (slide.to - slide.from) * e;
   }
-  return $("track").scrollLeft / (G.step || 90);
+  return Math.abs($("track").scrollLeft) / (G.step || 90);
 }
 
 function show(i, instant, dragged) {
@@ -472,14 +544,15 @@ function swapPlaque(i) {
 
 function plaque(i) {
   const w = WORKS[i];
-  if ("mediaSession" in navigator && window.MediaMetadata) navigator.mediaSession.metadata = new MediaMetadata({ title: w.title, artist: "Noma Bar", album: "Look Again" });
-  $("title").textContent = w.title;
-  $("meta").textContent = w.year ? `Noma Bar, ${w.year}` : "Noma Bar";
+  const title = lang === "he" ? w.he : w.title;
+  if ("mediaSession" in navigator && window.MediaMetadata) navigator.mediaSession.metadata = new MediaMetadata({ title, artist: tr("artist"), album: tr("exName") });
+  $("title").textContent = title;
+  $("meta").textContent = w.year ? `${tr("artist")}, ${w.year === "Since 2003" && lang === "he" ? "מאז 2003" : w.year}` : tr("artist");
 }
 
+// Slot i sits i steps along the line; in Hebrew the line scrolls the other way, so the offset is negative.
 function trackTarget(i) {
-  const track = $("track"), b = track.children[i];
-  return b ? b.offsetLeft - track.clientWidth / 2 + b.offsetWidth / 2 : 0;
+  return sgn() * i * $("track").children[0].offsetWidth;
 }
 
 function centreTrack() {
@@ -496,7 +569,7 @@ function togglePause() {
 function setPaused(next) {
   paused = next;
   if (paused) player.pause(); else playNow();
-  const label = paused ? "Play" : "Pause";
+  const label = tr(paused ? "play" : "pause");
   $("play").setAttribute("aria-label", label);
   $("iconPause").style.display = paused ? "none" : "";
   $("iconPlay").style.display = paused ? "" : "none";
@@ -526,7 +599,6 @@ function choose(i) {
 WORKS.forEach((w, i) => {
   const b = document.createElement("button");
   b.className = "slot"; b.type = "button"; b.dataset.work = i;
-  b.setAttribute("aria-label", `${i + 1} of ${WORKS.length}: ${w.title}`);
   b.onclick = e => {
     e.stopPropagation();
     choose(e.detail === 0 ? i : hit(e.clientX));
@@ -554,7 +626,7 @@ function fit() {
 function place(d) {
   const a = Math.abs(d), x = a <= 1 ? a * G.near : G.near + (a - 1) * G.far;
   const k = Math.min(a, 1), ease = k * k * (3 - 2 * k);
-  return { x: d < 0 ? -x : x, size: G.D + (G.n - G.D) * ease, fade: 1 - .4 * ease, a };
+  return { x: (d < 0 ? -x : x) * sgn(), size: G.D + (G.n - G.D) * ease, fade: 1 - .4 * ease, a };
 }
 function renderOrbs(dt) {
   if (!G.D) return;
@@ -590,35 +662,44 @@ function hit(clientX) {
 }
 
 // The menu: every work under its room.
-let n = 0;
-for (const [r, works] of ROOMS.entries()) {
-  const h = document.createElement("h2"); h.textContent = `Room ${r + 1}`;
-  const cells = document.createElement("div"); cells.className = "cells";
-  for (let k = 0; k < works.length; k++, n++) {
-    const i = n, b = document.createElement("button");
-    b.className = "cell"; b.type = "button"; b.dataset.work = i;
-    const name = document.createElement("span"); name.textContent = WORKS[i].title;
-    b.append(picture(WORKS[i]), name);
-    b.onclick = () => { go(i); panel(null); browse(false); };
-    cells.append(b);
+function renderRooms() {
+  $("roomList").replaceChildren();
+  let n = 0;
+  for (const [r, works] of ROOMS.entries()) {
+    const h = document.createElement("h2"); h.textContent = tr("room")(r + 1);
+    const cells = document.createElement("div"); cells.className = "cells";
+    for (let k = 0; k < works.length; k++, n++) {
+      const i = n, b = document.createElement("button");
+      b.className = "cell"; b.type = "button"; b.dataset.work = i;
+      b.setAttribute("aria-current", i === wanted ? "true" : "false");
+      const name = document.createElement("span"); name.textContent = lang === "he" ? WORKS[i].he : WORKS[i].title;
+      b.append(picture(WORKS[i]), name);
+      b.onclick = () => { go(i); panel(null); browse(false); };
+      cells.append(b);
+    }
+    $("roomList").append(h, cells);
   }
-  $("roomList").append(h, cells);
 }
 
-let openPanel = null;
-EXHIBITIONS.forEach(([name, when, pic, open]) => {
-  const b = document.createElement("button");
-  b.className = "ex"; b.type = "button"; b.disabled = !open;
-  const im = document.createElement("img"); im.src = `img/ex-${pic}.jpg`; im.alt = "";
-  const txt = document.createElement("span");
-  const t = document.createElement("b"); t.textContent = name;
-  const d = document.createElement("small"); d.textContent = when;
-  txt.append(t, d);
-  b.append(im, txt);
-  b.style.setProperty("--n", Math.min($("exList").children.length, 7));
-  if (open) b.onclick = enterTour;
-  $("exList").append(b);
-});
+let openPanel = null, returnTo = null, ready = false;
+function renderExhibitions() {
+  $("exList").replaceChildren();
+  EXHIBITIONS.forEach(([en, he, when, pic, open], k) => {
+    const b = document.createElement("button");
+    b.className = "ex" + (open ? "" : " soon"); b.type = "button";
+    const im = document.createElement("img"); im.src = `img/ex-${pic}.jpg`; im.alt = "";
+    const txt = document.createElement("span");
+    const t = document.createElement("b"); t.textContent = lang === "he" ? he : en;
+    const d = document.createElement("small");
+    const [word, date] = when.split(" ");
+    d.textContent = open && !ready ? tr("ready") : `${tr(word)} ${date}`.replace("־ ", "־");
+    txt.append(t, d);
+    b.append(im, txt);
+    b.style.setProperty("--n", Math.min(k, 7));
+    b.onclick = open ? enterTour : () => toast(tr("soonEx"));
+    $("exList").append(b);
+  });
+}
 function enterTour() {
   $("closeHome").hidden = false;   // From now on there is a tour to go back to.
   panel(null);
@@ -641,6 +722,7 @@ function openingLogo() {
 
 function panel(id) {
   openPanel = id;
+  document.body.classList.toggle("home", id === "home" || (id === "settings" && returnTo === "home"));
   document.querySelectorAll(".panel").forEach(el => {
     const on = el.id === id;
     el.classList.toggle("on", on);
@@ -655,7 +737,6 @@ function panel(id) {
 }
 
 // Settings. A mock-up: choices are remembered on the page but do not change the tour yet.
-const SCALE = ["A taste", "Short", "Sweet spot", "Longer", "Fully detailed"];
 const DOT_COUNT = 23;
 for (let i = 0; i < DOT_COUNT; i++) {
   const d = document.createElement("i"), size = 3 + 11 * i / (DOT_COUNT - 1);
@@ -664,28 +745,17 @@ for (let i = 0; i < DOT_COUNT; i++) {
 }
 function setScale() {
   const v = +$("scale").value;
-  $("scaleName").textContent = SCALE[v];
-  $("scale").setAttribute("aria-valuetext", SCALE[v]);
+  $("scaleName").textContent = tr("scale")[v];
+  $("scale").setAttribute("aria-valuetext", tr("scale")[v]);
   [...$("scaleDots").children].forEach((d, i) => d.classList.toggle("lit", i / (DOT_COUNT - 1) <= v / 4));
 }
 $("scale").addEventListener("input", () => { setScale(); useTrack(+$("scale").value < 2 ? "short" : "sweet"); });
-setScale();
 
 // All in one mix. Editor's notes starts on; the stroke colour says who else each one is for.
-const FLAVOURS = [
-  ["Editor's notes", "", true],
-  ["Little riddles", "tone-kids"],
-  ["Other works of art", "tone-experts"],
-  ["Historical facts", "tone-extra"],
-  ["Interesting anecdotes", "tone-kids"],
-  ["References", "tone-experts"],
-  ["Get to know the world", "tone-kids"],
-  ["Techniques", "tone-experts"],
-  ["Inspirations", "tone-experts"]
-];
-FLAVOURS.forEach(([name, tone, on]) => {
+const FLAVOURS = [["", true], ["tone-kids"], ["tone-experts"], ["tone-extra"], ["tone-kids"], ["tone-experts"], ["tone-kids"], ["tone-experts"], ["tone-experts"]];
+FLAVOURS.forEach(([tone, on]) => {
   const b = document.createElement("button");
-  b.className = "pill flavour" + (tone ? " " + tone : ""); b.type = "button"; b.textContent = name;
+  b.className = "pill flavour" + (tone ? " " + tone : ""); b.type = "button";
   b.setAttribute("aria-pressed", !!on);
   b.dataset.default = !!on;
   b.onclick = () => { b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") !== "true"); flavourState(); };
@@ -706,7 +776,7 @@ function hideSoon() {
 }
 function browse(on) {
   document.body.classList.toggle("browse", on);
-  $("work").setAttribute("aria-label", on ? "The work you are listening to" : "Show controls");
+  $("work").setAttribute("aria-label", tr(on ? "listening" : "showControls"));
   clearTimeout(hideTimer);
   if (on) { fit(); centreTrack(); hideSoon(); }
 }
@@ -714,15 +784,68 @@ function browse(on) {
 $("play").onclick = () => { togglePause(); hideSoon(); };
 $("prev").onclick = () => { go(wanted - 1); hideSoon(); };
 $("next").onclick = () => { go(wanted + 1); hideSoon(); };
-$("openRooms").onclick = () => panel("rooms");
-$("openSettings").onclick = () => panel("settings");
-$("toHome").onclick = () => { browse(false); setPaused(true); panel("home"); };
+// The header buttons work from anywhere; closing a panel goes back to wherever you opened it from.
+function openFromHeader(id) {
+  if (openPanel === id) { panel(returnTo); returnTo = null; return; }
+  if (openPanel !== "rooms" && openPanel !== "settings") returnTo = openPanel;
+  panel(id);
+}
+$("openRooms").onclick = () => openFromHeader("rooms");
+$("openSettings").onclick = () => openFromHeader("settings");
+$("toHome").onclick = () => { browse(false); setPaused(true); returnTo = null; panel("home"); };
 $("closeHome").onclick = enterTour;
-document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => panel(null));
+document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => { panel(returnTo); returnTo = null; });
+
+// A short note for anything the prototype does not do yet.
+let toastTimer;
+function toast(text) {
+  $("toast").textContent = text;
+  $("toast").classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $("toast").classList.remove("on"), 2600);
+}
+
+// Language: everything on screen is redrawn, and the line turns around.
+function applyLang(next) {
+  lang = next;
+  const root = document.documentElement;
+  root.lang = lang; root.dir = rtl() ? "rtl" : "ltr";
+  document.querySelectorAll("[data-t]").forEach(el => el.textContent = tr(el.dataset.t));
+  document.querySelectorAll("[data-aria]").forEach(el => el.setAttribute("aria-label", tr(el.dataset.aria)));
+  document.querySelectorAll("[data-alt]").forEach(el => el.alt = tr(el.dataset.alt));
+  document.querySelectorAll(".flavour").forEach((b, i) => b.textContent = tr("flav")[i]);
+  [...$("track").children].forEach((b, i) => b.setAttribute("aria-label", tr("of")(i + 1, WORKS.length, lang === "he" ? WORKS[i].he : WORKS[i].title)));
+  [...$("langPills").children].forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === lang));
+  $("work").setAttribute("aria-label", tr(document.body.classList.contains("browse") ? "listening" : "showControls"));
+  $("play").setAttribute("aria-label", tr(paused ? "play" : "pause"));
+  ready = readyFor[voiceLang()] === true;
+  setScale(); renderRooms(); renderExhibitions(); plaque(wanted);
+  slide = null; centreTrack();
+  prepare();
+  useTrack(trackName, true);   // the narration changes language too, from the same work
+}
+[["he", "עברית"], ["en", "English"], ...OTHER_LANGS.map(l => [null, l])].forEach(([code, name]) => {
+  const b = document.createElement("button");
+  b.className = "pill" + (code ? "" : " soon"); b.type = "button"; b.textContent = name;
+  if (code) { b.dataset.lang = code; b.lang = code; }
+  b.onclick = () => code ? applyLang(code) : toast(tr("soonLang"));
+  $("langPills").append(b);
+});
+OTHER_LANGS.forEach(name => {
+  const b = document.createElement("button");
+  b.type = "button"; b.textContent = name;
+  b.onclick = () => toast("This is a prototype. For now, only Hebrew and English work. · זהו אב טיפוס. בינתיים רק עברית ואנגלית עובדות.");
+  $("otherLangs").append(b);
+});
+document.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => {
+  applyLang(b.dataset.pick);
+  panel("home");
+  openingLogo();
+});
 
 // Tap anywhere: the work steps back into the line, or comes forward again.
 document.querySelector(".screen").addEventListener("click", e => {
-  if (e.target.closest("#below button, .tool, .panel")) return;
+  if (e.target.closest("#below button, .head, .panel")) return;
   browse(!document.body.classList.contains("browse"));
 });
 
@@ -732,17 +855,12 @@ $("stage").addEventListener("touchstart", e => { x0 = e.touches[0].clientX; y0 =
 $("stage").addEventListener("touchend", e => {
   if (x0 === null || document.body.classList.contains("browse")) return;
   const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
-  if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) go(wanted + (dx < 0 ? 1 : -1));
+  if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) go(wanted + (dx * sgn() < 0 ? 1 : -1));
 }, { passive: true });
 
 function nearest() {
-  const track = $("track"), mid = track.scrollLeft + track.clientWidth / 2;
-  let best = 0, gap = Infinity;
-  [...track.children].forEach((b, i) => {
-    const d = Math.abs(b.offsetLeft + b.offsetWidth / 2 - mid);
-    if (d < gap) { gap = d; best = i; }
-  });
-  return best;
+  const track = $("track");
+  return Math.max(0, Math.min(WORKS.length - 1, Math.round(Math.abs(track.scrollLeft) / track.children[0].offsetWidth)));
 }
 
 // While the line moves, the live image dissolves and the name follows the middle. Where it stops is the work you hear next.
@@ -767,8 +885,8 @@ $("track").addEventListener("scroll", () => {
 }, { passive: true });
 
 addEventListener("keydown", e => {
-  if (e.key === "ArrowRight") go(wanted + 1);
-  if (e.key === "ArrowLeft") go(wanted - 1);
+  if (e.key === "ArrowRight") go(wanted + sgn());
+  if (e.key === "ArrowLeft") go(wanted - sgn());
   if (e.key === "Escape") { if (openPanel) panel(null); else browse(false); }
 });
 
@@ -776,24 +894,28 @@ addEventListener("resize", () => { layout(); fit(); centreTrack(); });
 if (window.ResizeObserver) new ResizeObserver(layout).observe($("work"));
 // The narration. One continuous recording per length, with timings for each work and sentence,
 // held in memory so it keeps playing with no reception and with the phone locked.
-const TOUR = window.TOUR || { sweet: { stops: [] }, short: { stops: [] } };
+// One recording per language and length: Lily in English, Danit in Hebrew.
+const EMPTY = { sweet: { stops: [] }, short: { stops: [] } };
+const TOURS = { en: window.TOUR || EMPTY, he: window.TOUR_HE || window.TOUR || EMPTY };
+const voiceLang = () => lang === "he" && window.TOUR_HE ? "he" : "en";
+const trackKey = name => (voiceLang() === "he" ? "he-" : "") + name;
 const player = new Audio();
 player.preload = "auto";
 const tracks = {}, trackUrl = {};
 let trackName = "sweet", pendingSeek = null;
 
-function fetchTrack(name) {
-  return tracks[name] ||= fetch(`track-${name}.mp4`).then(r => r.blob()).then(b => {
-    trackUrl[name] = URL.createObjectURL(new Blob([b], { type: "audio/mp4" }));
-    return trackUrl[name];
+function fetchTrack(key) {
+  return tracks[key] ||= fetch(`track-${key}.mp4`).then(r => r.blob()).then(b => {
+    trackUrl[key] = URL.createObjectURL(new Blob([b], { type: "audio/mp4" }));
+    return trackUrl[key];
   });
 }
-function stopsNow() { return TOUR[trackName].stops; }
+function stopsNow() { return TOURS[voiceLang()][trackName].stops; }
 
 // Phones only allow sound to start inside a tap, so the recording is loaded in advance and started directly.
 function playNow() {
-  const url = trackUrl[trackName];
-  if (!url) { fetchTrack(trackName).then(() => { if (!paused) playNow(); }); return; }
+  const key = trackKey(trackName), url = trackUrl[key];
+  if (!url) { fetchTrack(key).then(() => { if (!paused) playNow(); }); return; }
   if (player.src !== url) { player.src = url; pendingSeek = wanted; }
   player.play().catch(() => setPaused(true));
 }
@@ -819,8 +941,8 @@ function isSpeaking() {
   const s = stopsNow()[wanted], t = player.currentTime;
   return !!s && s.lines.some(([a, b]) => t >= a && t <= b);
 }
-function useTrack(name) {
-  if (name === trackName) return;
+function useTrack(name, force) {
+  if (name === trackName && !force) return;
   trackName = name;
   if (!paused) playNow();
   else if (player.src) { player.pause(); player.removeAttribute("src"); player.load(); }
@@ -833,16 +955,21 @@ if ("mediaSession" in navigator) {
   ms.setActionHandler("nexttrack", () => go(wanted + 1));
   ms.setActionHandler("previoustrack", () => go(wanted - 1));
 }
-const noteEl = () => document.querySelector(".ex small");
-const noteText = EXHIBITIONS[0][1];
-noteEl().textContent = "Getting the tour ready…";
-fetchTrack("sweet").then(() => { noteEl().textContent = noteText; fetchTrack("short"); }).catch(() => { noteEl().textContent = noteText; });
+// Load the chosen language's recordings first, then the other length.
+const readyFor = {};
+function prepare() {
+  const l = voiceLang();
+  if (readyFor[l] !== undefined) return;
+  readyFor[l] = false;
+  const done = () => { readyFor[l] = true; ready = readyFor[voiceLang()] === true; renderExhibitions(); };
+  fetchTrack(trackKey("sweet")).then(() => { done(); fetchTrack(trackKey("short")); }).catch(done);
+}
 
 fit();
+applyLang("he");
 show(0, true);
 layout();
-panel("home");
-openingLogo();
+panel("lang");
 requestAnimationFrame(frame);
 </script>
 
