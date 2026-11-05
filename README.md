@@ -2,4 +2,4 @@
 
 Independent concept demo of an audio tour for Noma Bar: Look Again, made to share with Tel Aviv Museum of Art. Not an official museum app.
 
-Installation photography: Daniel Hanoch. Works © Noma Bar.
+Works © Noma Bar. Installation photography: Daniel Hanoch. Exhibition images: Tel Aviv Museum of Art. Voice: ElevenLabs.
